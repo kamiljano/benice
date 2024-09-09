@@ -16,7 +16,10 @@
   "content_scripts": [
     {
       "js": ["assets/content-script.js"],
-      "matches": ["https://*/*", "http://*/*"]
+      "matches": ["https://*/*", "http://*/*", "file:///*/*"]
     }
-  ]
-} 
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}
