@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "Be nice",
+  "description": "Propose a version of the user input that is more polite.",
+  "version": "1.0",
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "logo.png"
+  }
+} 
