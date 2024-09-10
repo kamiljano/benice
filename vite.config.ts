@@ -20,10 +20,7 @@ export default defineConfig({
       output: {
         entryFileNames: (chunkInfo) => {
           if (chunkInfo.name === 'contentScript') {
-            return 'assets/content-script.js';
-          }
-          if (chunkInfo.name === 'background') {
-            return 'background.js';
+            return 'content-script.js';
           }
           return 'assets/[name].js';
         },
@@ -31,7 +28,6 @@ export default defineConfig({
       input: {
         main: './popup.html',
         contentScript: './src/scripts/content-script.ts',
-        background: './src/background/background.ts',
       },
     },
   },

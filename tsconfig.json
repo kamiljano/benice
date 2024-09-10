@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
-    "types": ["chrome"]
+    "types": ["chrome"],
+    "skipLibCheck": true,
+    "sourceMap": true
   },
   "files": [],
   "references": [

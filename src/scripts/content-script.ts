@@ -1,4 +1,5 @@
 import debounce from 'debounce';
+import validateText from './validate-text';
 
 const ignorePages = new Set<string>(
   ['google.com', 'translate.google.com']
@@ -9,11 +10,9 @@ const ignorePages = new Set<string>(
     .flat(),
 );
 
-const publishTextChange = (ev: Event) => {
-  chrome.runtime.sendMessage({
-    type: 'text-change',
-    text: (ev.target as HTMLTextAreaElement).value,
-  });
+const publishTextChange = async (ev: Event) => {
+  const result = await validateText((ev.target as HTMLTextAreaElement).value);
+  console.log('Validation result:', result);
 };
 
 const addIcon = (textarea: HTMLTextAreaElement) => {
