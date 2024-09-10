@@ -10,22 +10,35 @@ const ignorePages = new Set<string>(
     .flat(),
 );
 
+const LOGO = chrome.runtime.getURL('images/logo-48.png');
+const BAD_TEXT = chrome.runtime.getURL('images/bad-text.svg');
+
 const publishTextChange = async (ev: Event) => {
-  const result = await validateText((ev.target as HTMLTextAreaElement).value);
+  const target = ev.target as HTMLTextAreaElement;
+  const result = await validateText(target.value);
+  const iconElement = document.getElementById(
+    target.getAttribute('data-be-nice-icon-id')!,
+  ) as HTMLImageElement;
+  iconElement.src = result.offensive ? BAD_TEXT : LOGO;
   console.log('Validation result:', result);
 };
 
+let iconIdIterator = 0;
 const addIcon = (textarea: HTMLTextAreaElement) => {
   const rect = textarea.getBoundingClientRect();
 
+  const iconId = `beNiceIcon_${iconIdIterator++}`;
   const icon = document.createElement('img');
-  icon.src = chrome.runtime.getURL('images/logo-48.png');
+  icon.src = LOGO;
+  icon.id = iconId;
   icon.style.position = 'fixed';
   icon.style.top = `${rect.top + 5}px`;
   icon.style.left = `${rect.left + rect.width + 5}px`;
   icon.style.width = '20px';
   icon.style.height = '20px';
   icon.style.cursor = 'pointer';
+
+  textarea.setAttribute('data-be-nice-icon-id', iconId);
 
   textarea.parentNode?.insertBefore(icon, textarea);
 };
