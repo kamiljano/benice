@@ -24,6 +24,18 @@ class JsonParseError extends Error {
   }
 }
 
+class LlmResponseError extends Error {
+  constructor(
+    readonly response: z.ZodError,
+    readonly returnedMessage: object,
+  ) {
+    super(
+      `Invalid response from the LLM: ${JSON.stringify(returnedMessage, null, 2)}`,
+    );
+    this.name = 'LlmResponseError';
+  }
+}
+
 const getResponse = async (text: string) => {
   const response = await ollama.chat({
     model: 'mixtral',
@@ -50,9 +62,12 @@ const getResponse = async (text: string) => {
     throw new JsonParseError(response.message.content);
   }
 
-  const result = LlmResponse.parse(content);
-
-  return result;
+  try {
+    const result = LlmResponse.parse(content);
+    return result;
+  } catch (err) {
+    throw new LlmResponseError(err as z.ZodError, content);
+  }
 };
 
 export default async function validateText(
@@ -62,9 +77,10 @@ export default async function validateText(
     try {
       return getResponse(text);
     } catch (error) {
-      if (error instanceof z.ZodError) {
-        console.warn('Error parsing response:', error.errors);
-      } else if (error instanceof JsonParseError) {
+      if (
+        error instanceof LlmResponseError ||
+        error instanceof JsonParseError
+      ) {
         console.warn(error.message);
       } else {
         throw error;
