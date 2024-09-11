@@ -10,13 +10,22 @@ export const initContent = (props: ContentProps) => {
   const publishTextChange = async (ev: Event) => {
     const target = ev.target as HTMLTextAreaElement;
     try {
-      state.validations.for(target).setState('loading');
+      state.validations.for(target).setState('loading', 'Validating text...');
       const result = await validateText(target.value);
       console.debug('[BeNice]: Validation result:', result);
-      state.validations.for(target).setState(result.offensive ? 'bad' : 'good');
+      if (result.offensive) {
+        state.validations.for(target).setState('bad', result.correctedText);
+      } else {
+        state.validations.for(target).setState('good');
+      }
     } catch (err) {
       console.error('[BeNice]: Failed to validate text:', err);
-      state.validations.for(target).setState('error');
+      state.validations
+        .for(target)
+        .setState(
+          'error',
+          'An unexpected error occurred during during the LLM communication',
+        );
     }
   };
 
@@ -56,5 +65,9 @@ export const initContent = (props: ContentProps) => {
   }).observe(document.body, {
     childList: true,
     subtree: true,
+  });
+
+  window.addEventListener('resize', function () {
+    state.updateAllIconPositions();
   });
 };

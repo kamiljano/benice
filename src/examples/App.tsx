@@ -1,4 +1,5 @@
 import './App.css';
+import 'tippy.js/dist/tippy.css';
 import { initContent } from '../scripts/init-content';
 import { useEffect, useState } from 'react';
 

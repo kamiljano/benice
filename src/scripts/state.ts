@@ -37,8 +37,8 @@ export const state = Object.freeze({
       }
 
       return {
-        setState(state: IconState) {
-          validation.icon.setState(state);
+        setState(state: IconState, tooltipMessage?: string): void {
+          validation.icon.setState(state, tooltipMessage);
         },
       };
     },

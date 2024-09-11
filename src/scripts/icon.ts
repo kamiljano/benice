@@ -1,3 +1,7 @@
+import tippy, { Instance } from 'tippy.js';
+
+const DEFAULT_TOOLTIP = 'Change the text to valide it';
+
 export interface StateIcons {
   goodTextIconUrl: string;
   badTextIconUrl: string;
@@ -22,13 +26,20 @@ export default class Icon {
     return new Icon(textArea, icon, props);
   }
 
-  private state: IconState = 'good';
+  private readonly tooltip: Instance;
 
   private constructor(
     private readonly parent: HTMLTextAreaElement,
     private readonly icon: HTMLImageElement,
     private readonly props: StateIcons,
   ) {
+    this.tooltip = tippy(icon, {
+      placement: 'left',
+      arrow: true,
+      animation: 'perspective',
+      content: DEFAULT_TOOLTIP,
+      trigger: 'click',
+    });
     this.updatePosition();
   }
 
@@ -38,8 +49,8 @@ export default class Icon {
     this.icon.style.left = `${rect.left + rect.width + 5}px`;
   }
 
-  setState(state: IconState) {
-    this.state = state;
+  setState(state: IconState, tooltipMessage?: string): void {
+    this.tooltip.setContent(tooltipMessage || DEFAULT_TOOLTIP);
 
     if (state === 'good') {
       this.icon.src = this.props.goodTextIconUrl;
