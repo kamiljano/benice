@@ -9,6 +9,9 @@ type ContentProps = StateIcons;
 export const initContent = (props: ContentProps) => {
   const publishTextChange = async (ev: Event) => {
     const target = ev.target as HTMLTextAreaElement;
+    if (target.value.length < 3) {
+      return;
+    }
     try {
       state.validations.for(target).setState('loading', 'Validating text...');
       const result = await validateText(target.value);

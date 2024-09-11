@@ -39,6 +39,8 @@ export default class Icon {
       animation: 'perspective',
       content: DEFAULT_TOOLTIP,
       trigger: 'click',
+      allowHTML: true,
+      interactive: true,
     });
     this.updatePosition();
   }
@@ -49,8 +51,36 @@ export default class Icon {
     this.icon.style.left = `${rect.left + rect.width + 5}px`;
   }
 
+  private buildBadTooltipMessage(correctedText: string) {
+    const content = document.createElement('div');
+    content.style.textAlign = 'center';
+
+    const text = document.createElement('div');
+    text.innerHTML = correctedText;
+
+    const button = document.createElement('button');
+    button.textContent = 'Replace';
+    button.type = 'button';
+    button.style.marginTop = '10px';
+    button.style.zIndex = '9999';
+    button.style.cursor = 'pointer';
+    button.onclick = () => {
+      this.parent.value = correctedText;
+      this.tooltip.hide();
+      this.setState('good');
+    };
+
+    content.appendChild(text);
+    content.appendChild(button);
+    return content;
+  }
+
   setState(state: IconState, tooltipMessage?: string): void {
-    this.tooltip.setContent(tooltipMessage || DEFAULT_TOOLTIP);
+    if (state === 'bad' && tooltipMessage) {
+      this.tooltip.setContent(this.buildBadTooltipMessage(tooltipMessage));
+    } else {
+      this.tooltip.setContent(tooltipMessage || DEFAULT_TOOLTIP);
+    }
 
     if (state === 'good') {
       this.icon.src = this.props.goodTextIconUrl;
