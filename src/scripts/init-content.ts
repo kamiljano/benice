@@ -15,6 +15,7 @@ export const initContent = (props: ContentProps) => {
       console.debug('[BeNice]: Validation result:', result);
       state.validations.for(target).setState(result.offensive ? 'bad' : 'good');
     } catch (err) {
+      console.error('[BeNice]: Failed to validate text:', err);
       state.validations.for(target).setState('error');
     }
   };

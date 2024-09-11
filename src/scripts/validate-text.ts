@@ -36,20 +36,32 @@ class LlmResponseError extends Error {
   }
 }
 
+class NoTextChangeError extends Error {
+  constructor() {
+    super('The text was not changed by the LLM');
+    this.name = 'NoTextChangeError';
+  }
+}
+
 const getResponse = async (text: string) => {
   const response = await ollama.chat({
-    model: 'mixtral',
+    model: 'llama3.1',
     format: 'json',
     messages: [
       {
-        role: 'user',
-        content: `Is the following message offensive or passive aggressive?\n\n"${text}"\n
-                Provide the response in the json format like "{
+        role: 'system',
+        content: `User is providing a message that may be offensive or passive aggressive.
+                Provide a response in the json format like "{
                   "offensive": true | false,
                   "correctedText": string | null
-                }" where the "correctedText" represents the modified version of the original text that is no longer offensive or passive aggressive
-                If the text was not offensive to begin with, set "correctedText" to null.
-                Do not include any text other than the JSON response.`,
+                }". Set the "offensive" to true if the text is offensive or passive aggresive.
+                Set the "correctedText" to a new text that represents the same idea, but is not offensive or passive aggressive.
+                It should not be the same text as the original.
+                If the text was not offensive to begin with, set "correctedText" to null and "offensive" to false.`,
+      },
+      {
+        role: 'user',
+        content: text,
       },
     ],
   });
@@ -62,12 +74,19 @@ const getResponse = async (text: string) => {
     throw new JsonParseError(response.message.content);
   }
 
+  let result: z.infer<typeof LlmResponse>;
+
   try {
-    const result = LlmResponse.parse(content);
-    return result;
+    result = LlmResponse.parse(content);
   } catch (err) {
     throw new LlmResponseError(err as z.ZodError, content);
   }
+
+  if (result.correctedText === text) {
+    throw new NoTextChangeError();
+  }
+
+  return result;
 };
 
 export default async function validateText(
@@ -75,13 +94,16 @@ export default async function validateText(
 ): Promise<z.infer<typeof LlmResponse>> {
   for (let i = 0; i < 3; i++) {
     try {
-      return getResponse(text);
+      return await getResponse(text);
     } catch (error) {
       if (
         error instanceof LlmResponseError ||
-        error instanceof JsonParseError
+        error instanceof JsonParseError ||
+        error instanceof NoTextChangeError
       ) {
-        console.warn(error.message);
+        console.debug(
+          `[BeNice]: Failed to parse LLM response: ${error.message}. Retrying...`,
+        );
       } else {
         throw error;
       }
