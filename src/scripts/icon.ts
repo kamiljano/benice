@@ -3,6 +3,7 @@ export interface StateIcons {
   badTextIconUrl: string;
   validationErrorIconUrl: string;
   validatingIconUrl: string;
+  defaultIconUrl: string;
 }
 
 export type IconState = 'good' | 'bad' | 'error' | 'loading';
@@ -10,7 +11,7 @@ export type IconState = 'good' | 'bad' | 'error' | 'loading';
 export default class Icon {
   static createFor(textArea: HTMLTextAreaElement, props: StateIcons): Icon {
     const icon = document.createElement('img');
-    icon.src = props.goodTextIconUrl;
+    icon.src = props.defaultIconUrl;
     icon.style.position = 'absolute';
     icon.style.width = '30px';
     icon.style.height = '30px';

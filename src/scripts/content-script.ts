@@ -11,7 +11,8 @@ const ignorePages = new Set<string>(
 
 if (!ignorePages.has(window.location.hostname)) {
   initContent({
-    goodTextIconUrl: chrome.runtime.getURL('images/logo-128.png'),
+    goodTextIconUrl: chrome.runtime.getURL('images/good-text.svg'),
+    defaultIconUrl: chrome.runtime.getURL('images/logo-128.png'),
     badTextIconUrl: chrome.runtime.getURL('images/bad-text.svg'),
     validationErrorIconUrl: chrome.runtime.getURL(
       'images/validation-error.svg',

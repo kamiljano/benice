@@ -31,7 +31,8 @@ function App() {
   useEffect(() => {
     setTimeout(() => {
       initContent({
-        goodTextIconUrl: '/images/logo-128.png',
+        defaultIconUrl: '/images/logo-128.png',
+        goodTextIconUrl: '/images/good-text.svg',
         badTextIconUrl: '/images/bad-text.svg',
         validationErrorIconUrl: '/images/validation-error.svg',
         validatingIconUrl: '/images/validating-text.svg',
