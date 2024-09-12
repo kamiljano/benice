@@ -12,6 +12,29 @@ export interface StateIcons {
 
 export type IconState = 'good' | 'bad' | 'error' | 'loading';
 
+const isElementZeroSize = (element: HTMLElement) => {
+  const rect = element.getBoundingClientRect();
+  return rect.width === 0 || rect.height === 0;
+};
+
+const isElementVisible = (element: HTMLElement): boolean => {
+  return (
+    element.style.visibility !== 'hidden' &&
+    element.style.display !== 'none' &&
+    !isElementZeroSize(element)
+  );
+};
+
+const isElementRecursivelyVisible = (element: HTMLElement): boolean => {
+  if (!isElementVisible(element)) {
+    return false;
+  }
+  if (element.parentElement) {
+    return isElementRecursivelyVisible(element.parentElement);
+  }
+  return true;
+};
+
 export default class Icon {
   static createFor(textArea: HTMLTextAreaElement, props: StateIcons): Icon {
     const icon = document.createElement('img');
@@ -21,7 +44,11 @@ export default class Icon {
     icon.style.height = '30px';
     icon.style.cursor = 'pointer';
 
-    textArea.parentNode?.appendChild(icon);
+    if (textArea.id) {
+      icon.setAttribute('data-for', textArea.id);
+    }
+
+    document.body.appendChild(icon);
 
     return new Icon(textArea, icon, props);
   }
@@ -45,8 +72,22 @@ export default class Icon {
     this.updatePosition();
   }
 
+  private isParentVisible() {
+    return isElementRecursivelyVisible(this.parent);
+  }
+
   updatePosition() {
+    if (!this.isParentVisible()) {
+      this.icon.style.display = 'none';
+      return;
+    }
+    this.icon.style.display = 'block';
     const rect = this.parent.getBoundingClientRect();
+    console.debug(
+      '[BeNice]: Updating icon position to make sure it is next to the TextArea',
+      rect,
+    );
+
     this.icon.style.top = `${rect.top + 5}px`;
     this.icon.style.left = `${rect.left + rect.width + 5}px`;
   }
