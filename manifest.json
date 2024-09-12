@@ -21,7 +21,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["images/*"],
+      "resources": ["images/*", "assets/*"],
       "matches": ["https://*/*", "http://*/*"]
     }
   ]

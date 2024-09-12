@@ -1,5 +1,4 @@
 import './App.css';
-import 'tippy.js/dist/tippy.css';
 import { initContent } from '../scripts/init-content';
 import { useEffect, useState } from 'react';
 
@@ -37,6 +36,8 @@ function App() {
         badTextIconUrl: '/images/bad-text.svg',
         validationErrorIconUrl: '/images/validation-error.svg',
         validatingIconUrl: '/images/validating-text.svg',
+        tooltipStylesUrl: '../../../node_modules/tippy.js/dist/tippy.css',
+        iconStylesUrl: '/src/assets/icon.css',
       });
     }, 500);
   }, []);

@@ -11,6 +11,7 @@ const ignorePages = new Set<string>(
 
 if (!ignorePages.has(window.location.hostname)) {
   initContent({
+    tooltipStylesUrl: chrome.runtime.getURL('assets/tippy.css'),
     goodTextIconUrl: chrome.runtime.getURL('images/good-text.svg'),
     defaultIconUrl: chrome.runtime.getURL('images/logo-128.png'),
     badTextIconUrl: chrome.runtime.getURL('images/bad-text.svg'),
@@ -18,6 +19,7 @@ if (!ignorePages.has(window.location.hostname)) {
       'images/validation-error.svg',
     ),
     validatingIconUrl: chrome.runtime.getURL('images/validating-text.svg'),
+    iconStylesUrl: chrome.runtime.getURL('assets/icon.css'),
   });
 } else {
   console.debug('[BeNice]: Ignoring page:', window.location.hostname);

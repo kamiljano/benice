@@ -4,9 +4,21 @@ import { state } from './state';
 import Icon, { StateIcons } from './icon';
 import findTextAreas from './find-text-areas';
 
-type ContentProps = StateIcons;
+type ContentProps = StateIcons & {
+  tooltipStylesUrl: string;
+  iconStylesUrl: string;
+};
+
+const addStyle = (url: string) => {
+  const tooltipStyles = document.createElement('link');
+  tooltipStyles.setAttribute('rel', 'stylesheet');
+  tooltipStyles.setAttribute('href', url);
+  document.head.appendChild(tooltipStyles);
+};
 
 export const initContent = (props: ContentProps) => {
+  addStyle(props.tooltipStylesUrl);
+  addStyle(props.iconStylesUrl);
   const publishTextChange = async (ev: Event) => {
     const target = ev.target as HTMLTextAreaElement;
     if (target.value.length < 3) {
@@ -22,7 +34,7 @@ export const initContent = (props: ContentProps) => {
         state.validations.for(target).setState('good');
       }
     } catch (err) {
-      console.error('[BeNice]: Failed to validate text:', err);
+      console.debug('[BeNice]: Failed to validate text:', err);
       state.validations
         .for(target)
         .setState(

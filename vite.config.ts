@@ -11,6 +11,14 @@ export default defineConfig({
           src: 'manifest.json',
           dest: '.',
         },
+        {
+          src: 'node_modules/tippy.js/dist/tippy.css',
+          dest: 'assets',
+        },
+        {
+          src: 'src/assets/*',
+          dest: 'assets',
+        },
       ],
     }),
   ],

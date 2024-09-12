@@ -53,9 +53,16 @@ export default class Icon {
 
   private buildBadTooltipMessage(correctedText: string) {
     const content = document.createElement('div');
+    content.style.all = 'unset';
     content.style.textAlign = 'center';
+    content.style.display = 'flex';
+    content.style.flexDirection = 'column';
+    content.style.alignItems = 'center';
 
     const text = document.createElement('div');
+    text.style.border = '1px solid #ccc';
+    text.style.padding = '0.5em';
+    text.style.fontFamily = 'Arial, Helvetica, sans-serif';
     text.innerHTML = correctedText;
 
     const button = document.createElement('button');
@@ -64,6 +71,7 @@ export default class Icon {
     button.style.marginTop = '10px';
     button.style.zIndex = '9999';
     button.style.cursor = 'pointer';
+    button.className = 'benice-button';
     button.onclick = () => {
       this.parent.value = correctedText;
       this.tooltip.hide();
