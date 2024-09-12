@@ -83,10 +83,6 @@ export default class Icon {
     }
     this.icon.style.display = 'block';
     const rect = this.parent.getBoundingClientRect();
-    console.debug(
-      '[BeNice]: Updating icon position to make sure it is next to the TextArea',
-      rect,
-    );
 
     this.icon.style.top = `${rect.top + 5}px`;
     this.icon.style.left = `${rect.left + rect.width + 5}px`;
@@ -142,5 +138,9 @@ export default class Icon {
     } else {
       throw new Error(`Invalid icon state: ${state}`);
     }
+  }
+
+  remove() {
+    document.body.removeChild(this.icon);
   }
 }

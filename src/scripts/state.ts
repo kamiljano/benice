@@ -51,6 +51,7 @@ export const state = Object.freeze({
         return !textAreas.some((t) => {
           if (t === v.textArea.element) {
             v.textArea.resizeObserver.disconnect();
+            v.icon.remove();
             return true;
           }
           return false;
