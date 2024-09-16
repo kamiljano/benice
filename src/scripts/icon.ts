@@ -25,8 +25,13 @@ const isElementVisible = (element: HTMLElement): boolean => {
   );
 };
 
+const isEditable = (element: HTMLElement): boolean => {
+  const attr = element.getAttribute('readonly');
+  return !attr || attr !== 'true';
+};
+
 const isElementRecursivelyVisible = (element: HTMLElement): boolean => {
-  if (!isElementVisible(element)) {
+  if (!isElementVisible(element) && isEditable(element)) {
     return false;
   }
   if (element.parentElement) {

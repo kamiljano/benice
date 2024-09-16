@@ -1,33 +1,58 @@
-import { useState } from 'react';
-import reactLogo from '../assets/react.svg';
-import viteLogo from '/vite.svg';
+import { FormEvent, useEffect, useState } from 'react';
 import './App.css';
+import getLocalStorage from './local-storage/get-local-storage';
+import { Settings } from './local-storage/local-storage';
+import { ChromeLocalStorage } from './local-storage/chrome-local-storage';
 
 function App() {
-  const [count, setCount] = useState(0);
+  const localStorage = getLocalStorage();
+
+  const [ollamaHost, setOllamaHost] = useState('');
+
+  useEffect(() => {
+    localStorage
+      .getSettings()
+      .then((settings) => {
+        console.log('Loaded settings:', settings);
+        setOllamaHost(settings.ollamaHost);
+      })
+      .catch((error) => {
+        console.error('Failed to load settings:', error);
+      });
+  }, []);
+
+  const saveSettings = async (event: FormEvent) => {
+    event.preventDefault();
+
+    const settings: Settings = {
+      ollamaHost,
+    };
+
+    console.log('Saving settings:', settings);
+
+    await localStorage.setSettings(settings);
+
+    if (localStorage instanceof ChromeLocalStorage) {
+      window.close();
+    }
+  };
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <h1>BeNice</h1>
+      <form className="form-container" onSubmit={saveSettings}>
+        <label className="form-item">
+          Ollama host:
+          <input
+            type="text"
+            onChange={(e) => setOllamaHost(e.target.value)}
+            value={ollamaHost}
+            name="ollamaHost"
+            style={{ marginLeft: '0.5em' }}
+          />
+        </label>
+        <input className="form-item benice-button" type="submit" value="Save" />
+      </form>
     </>
   );
 }

@@ -24,5 +24,6 @@
       "resources": ["images/*", "assets/*"],
       "matches": ["https://*/*", "http://*/*"]
     }
-  ]
+  ],
+  "permissions": ["storage"]
 }
