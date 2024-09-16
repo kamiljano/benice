@@ -1,10 +1,6 @@
 import { Ollama } from 'ollama/browser';
 import { z } from 'zod';
 
-const ollama = new Ollama({
-  host: 'http://127.0.0.1:11434',
-});
-
 const OffensiveResponse = z.object({
   offensive: z.literal(true),
   correctedText: z.string(),
@@ -43,7 +39,16 @@ class NoTextChangeError extends Error {
   }
 }
 
-const getResponse = async (text: string) => {
+const getResponse = async (
+  text: string,
+): Promise<z.infer<typeof LlmResponse>> => {
+  const settings = await chrome.storage.local.get('settings');
+  const host = settings.settings?.ollamaHost || 'http://127.0.0.1:11434';
+
+  console.debug(`[BeNice]: Contacting ollama at ${host}`);
+
+  const ollama = new Ollama({ host });
+
   const response = await ollama.chat({
     model: 'llama3.1',
     format: 'json',
