@@ -92,9 +92,13 @@ export default class Icon {
     }
     this.wrapper.style.display = 'block';
     const rect = this.parent.getBoundingClientRect();
+    const scrollOffset = {
+      top: window.scrollY,
+      left: window.scrollX,
+    };
 
-    this.wrapper.style.top = `${rect.top + 5}px`;
-    this.wrapper.style.left = `${rect.left + rect.width + 5}px`;
+    this.wrapper.style.top = `${rect.top + scrollOffset.top + 5}px`;
+    this.wrapper.style.left = `${rect.left + scrollOffset.left + rect.width + 5}px`;
   }
 
   private buildBadTooltipMessage(correctedText: string) {

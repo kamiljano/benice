@@ -6,7 +6,9 @@ function Text({
   setText,
   removeText,
   text,
+  id,
 }: {
+  id: string;
   setText: (text: string) => void;
   removeText: () => void;
   text: string;
@@ -14,6 +16,7 @@ function Text({
   return (
     <div>
       <textarea
+        id={id}
         name="text"
         rows={10}
         cols={50}
@@ -42,7 +45,25 @@ function App() {
     }, 500);
   }, []);
 
-  const [texts, setTexts] = useState<string[]>(['']);
+  const [texts, setTexts] = useState<string[]>([
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+  ]);
 
   return (
     <div>
@@ -58,6 +79,7 @@ function App() {
         return (
           <Text
             key={i}
+            id={`text-${i}`}
             text={text}
             setText={(ev) => {
               const newTexts = [...texts];
