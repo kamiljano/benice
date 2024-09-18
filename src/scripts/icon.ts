@@ -69,7 +69,7 @@ export default class Icon {
     private readonly wrapper: HTMLDivElement,
     private readonly props: StateIcons,
   ) {
-    this.tooltip = tippy(wrapper, {
+    this.tooltip = tippy(icon, {
       placement: 'left',
       arrow: true,
       animation: 'perspective',
