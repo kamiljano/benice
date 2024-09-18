@@ -1,7 +1,17 @@
-import { describe, test, expect } from 'vitest';
+import { describe, test, expect, beforeAll, vi, MockInstance } from 'vitest';
 import validateText from './validate-text';
+import * as localStorage from '../commons/local-storage/get-local-storage';
 
 describe('validate-text', () => {
+  beforeAll(() => {
+    const getLocalStorage: MockInstance = vi.spyOn(localStorage, 'default');
+    getLocalStorage.mockReturnValue({
+      getSettings: () => ({
+        ollamaHost: 'http://127.0.0.1:11434',
+      }),
+    });
+  });
+
   test('the non-offensive text', async () => {
     for (let i = 0; i < 10; i++) {
       const result = await validateText('This is nice');
