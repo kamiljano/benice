@@ -42,20 +42,23 @@ const isElementRecursivelyVisible = (element: HTMLElement): boolean => {
 
 export default class Icon {
   static createFor(textArea: HTMLTextAreaElement, props: StateIcons): Icon {
+    const wrapper = document.createElement('div');
+    wrapper.style.position = 'absolute';
+
     const icon = document.createElement('img');
     icon.src = props.defaultIconUrl;
-    icon.style.position = 'absolute';
+    icon.style.cursor = 'pointer';
     icon.style.width = '30px';
     icon.style.height = '30px';
-    icon.style.cursor = 'pointer';
 
     if (textArea.id) {
       icon.setAttribute('data-for', textArea.id);
     }
 
-    document.body.appendChild(icon);
+    wrapper.appendChild(icon);
+    document.body.appendChild(wrapper);
 
-    return new Icon(textArea, icon, props);
+    return new Icon(textArea, icon, wrapper, props);
   }
 
   private readonly tooltip: Instance;
@@ -63,9 +66,10 @@ export default class Icon {
   private constructor(
     private readonly parent: HTMLTextAreaElement,
     private readonly icon: HTMLImageElement,
+    private readonly wrapper: HTMLDivElement,
     private readonly props: StateIcons,
   ) {
-    this.tooltip = tippy(icon, {
+    this.tooltip = tippy(wrapper, {
       placement: 'left',
       arrow: true,
       animation: 'perspective',
@@ -83,14 +87,14 @@ export default class Icon {
 
   updatePosition() {
     if (!this.isParentVisible()) {
-      this.icon.style.display = 'none';
+      this.wrapper.style.display = 'none';
       return;
     }
-    this.icon.style.display = 'block';
+    this.wrapper.style.display = 'block';
     const rect = this.parent.getBoundingClientRect();
 
-    this.icon.style.top = `${rect.top + 5}px`;
-    this.icon.style.left = `${rect.left + rect.width + 5}px`;
+    this.wrapper.style.top = `${rect.top + 5}px`;
+    this.wrapper.style.left = `${rect.left + rect.width + 5}px`;
   }
 
   private buildBadTooltipMessage(correctedText: string) {
@@ -146,6 +150,7 @@ export default class Icon {
   }
 
   remove() {
-    document.body.removeChild(this.icon);
+    this.tooltip.destroy();
+    document.body.removeChild(this.wrapper);
   }
 }
