@@ -91,7 +91,7 @@ function App() {
       setOllamaError(null);
       return true;
     } catch (err) {
-      console.error('[BeNice]: Failed to validate ollama access:', err);
+      console.warn('[BeNice]: Failed to validate ollama access:', err);
       setOllamaError((err as Error).message);
       return false;
     }
