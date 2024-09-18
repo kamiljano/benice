@@ -38,23 +38,48 @@ function IgnoredWebsite({
   );
 }
 
+const getCurrentSebsite = (): Promise<string> => {
+  if (chrome?.tabs) {
+    return new Promise((resolve, reject) => {
+      try {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          if (!tabs || !tabs[0] || !tabs[0].url) {
+            return reject(
+              new Error('Failed to acquire the current website URL'),
+            );
+          }
+          const url = new URL(tabs[0].url);
+          resolve(url.hostname);
+        });
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  return Promise.resolve(window.location.hostname);
+};
+
 function App() {
   const localStorage = getLocalStorage();
 
   const [ollamaHost, setOllamaHost] = useState('');
   const [allowedWebsites, setAllowedWebsites] = useState<string[]>([]);
+  const [currentWebsite, setCurrentWebsite] = useState<string | null>(null);
 
   useEffect(() => {
-    localStorage
-      .getSettings()
-      .then((settings) => {
+    Promise.all([
+      localStorage.getSettings().then((settings) => {
         console.log('Loaded settings:', settings);
         setOllamaHost(settings.ollamaHost);
         setAllowedWebsites(settings.allowedWebsites);
-      })
-      .catch((error) => {
-        console.error('Failed to load settings:', error);
-      });
+      }),
+      getCurrentSebsite().then((website) => {
+        setCurrentWebsite(website);
+      }),
+    ]).catch((error) => {
+      console.error('Failed to load settings:', error);
+    });
   }, []);
 
   const saveSettings = async (event: FormEvent) => {
@@ -90,18 +115,36 @@ function App() {
         </label>
 
         <h2>Allowed websites</h2>
-        <table>
-          {allowedWebsites.map((website) => (
-            <IgnoredWebsite
-              website={website}
-              key={website}
-              onDelete={() => {
-                setAllowedWebsites((websites) =>
-                  websites.filter((w) => w !== website),
-                );
+
+        {currentWebsite && !allowedWebsites.includes(currentWebsite) && (
+          <div style={{ marginBottom: '1em' }}>
+            Current website: <strong>{currentWebsite}</strong>
+            <button
+              onClick={() => {
+                setAllowedWebsites((websites) => [...websites, currentWebsite]);
               }}
-            />
-          ))}
+              className="form-item benice-button"
+              style={{ height: 25, width: 15, marginLeft: '4px' }}
+            >
+              Add
+            </button>
+          </div>
+        )}
+
+        <table>
+          <tbody>
+            {allowedWebsites.map((website) => (
+              <IgnoredWebsite
+                website={website}
+                key={website}
+                onDelete={() => {
+                  setAllowedWebsites((websites) =>
+                    websites.filter((w) => w !== website),
+                  );
+                }}
+              />
+            ))}
+          </tbody>
         </table>
         <input
           style={{ marginTop: '1em' }}
