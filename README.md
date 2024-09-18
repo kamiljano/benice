@@ -24,5 +24,4 @@ Start the local server with `npm run dev`.
 
 # TODO
 
-- automatically validate the text, when some was already present before you started typing
 - text validation should not be a boolean, but rather a probability percentage that this is offensive. Right now this is too sensitive.

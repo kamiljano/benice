@@ -60,6 +60,12 @@ export const initContent = (props: ContentProps) => {
         },
         icon,
       });
+
+      const event = new KeyboardEvent('keyup', {
+        bubbles: true,
+        cancelable: true,
+      });
+      textarea.dispatchEvent(event);
     }
   };
 
