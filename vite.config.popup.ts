@@ -24,18 +24,16 @@ export default defineConfig({
   ],
   build: {
     outDir: 'build',
+    emptyOutDir: false,
+    minify: false,
     rollupOptions: {
       output: {
-        entryFileNames: (chunkInfo) => {
-          if (chunkInfo.name === 'contentScript') {
-            return 'content-script.js';
-          }
-          return 'assets/[name].js';
+        entryFileNames: () => {
+          return 'assets/main.js';
         },
       },
       input: {
         main: './popup.html',
-        contentScript: './src/scripts/content-script.ts',
       },
     },
   },

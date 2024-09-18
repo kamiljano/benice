@@ -1,5 +1,6 @@
 import { Ollama } from 'ollama/browser';
 import { z } from 'zod';
+import getLocalStorage from '../commons/local-storage/get-local-storage';
 
 const OffensiveResponse = z.object({
   offensive: z.literal(true),
@@ -42,8 +43,8 @@ class NoTextChangeError extends Error {
 const getResponse = async (
   text: string,
 ): Promise<z.infer<typeof LlmResponse>> => {
-  const settings = await chrome.storage.local.get('settings');
-  const host = settings.settings?.ollamaHost || 'http://127.0.0.1:11434';
+  const settings = await getLocalStorage().getSettings();
+  const host = settings.ollamaHost;
 
   console.debug(`[BeNice]: Contacting ollama at ${host}`);
 
