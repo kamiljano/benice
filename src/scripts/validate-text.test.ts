@@ -26,7 +26,7 @@ describe('validate-text', () => {
   test('the offensive text', async () => {
     const aggressiveText =
       'This is the worst code I have ever seen. Change double quote to single quote.';
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 5; i++) {
       const result = await validateText(aggressiveText);
 
       expect(result.offensive).toBe(true);

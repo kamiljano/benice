@@ -119,7 +119,6 @@ export default class Icon {
     button.textContent = 'Replace';
     button.type = 'button';
     button.style.marginTop = '10px';
-    button.style.zIndex = '9999';
     button.style.cursor = 'pointer';
     button.className = 'benice-button';
     button.onclick = () => {

@@ -2,26 +2,33 @@ import { Ollama } from 'ollama/browser';
 import { z } from 'zod';
 import getLocalStorage from '../commons/local-storage/get-local-storage';
 
-const OffensiveResponse = z.object({
-  offensive: z.literal(true),
-  correctedText: z.string(),
+const llmResponse = z.object({
+  offensiveProbability: z.number().min(0).max(100),
+  correctedText: z.string().nullable().optional(),
 });
 
-const NonOffensiveResponse = z.object({
-  offensive: z.literal(false),
-  correctedText: z.literal(null),
-});
+interface OffensiveText {
+  offensive: true;
+  correctedText: string;
+}
 
-const LlmResponse = OffensiveResponse.or(NonOffensiveResponse);
+interface NonOffensiveText {
+  offensive: false;
+  correctedText: null;
+}
 
-class JsonParseError extends Error {
+type LlmResponse = OffensiveText | NonOffensiveText;
+
+class LlmError extends Error {}
+
+class JsonParseError extends LlmError {
   constructor(readonly body: string) {
     super('Failed to parse JSON response:\n' + body);
     this.name = 'JsonParseError';
   }
 }
 
-class LlmResponseError extends Error {
+class LlmResponseError extends LlmError {
   constructor(
     readonly response: z.ZodError,
     readonly returnedMessage: object,
@@ -33,16 +40,14 @@ class LlmResponseError extends Error {
   }
 }
 
-class NoTextChangeError extends Error {
+class NoTextChangeError extends LlmError {
   constructor() {
     super('The text was not changed by the LLM');
     this.name = 'NoTextChangeError';
   }
 }
 
-const getResponse = async (
-  text: string,
-): Promise<z.infer<typeof LlmResponse>> => {
+const getResponse = async (text: string): Promise<LlmResponse> => {
   const settings = await getLocalStorage().getSettings();
   const host = settings.ollamaHost;
 
@@ -58,12 +63,11 @@ const getResponse = async (
         role: 'system',
         content: `User is providing a message that may be offensive or passive aggressive.
                 Provide a response in the json format like "{
-                  "offensive": true | false,
-                  "correctedText": string | null
-                }". Set the "offensive" to true if the text is offensive or passive aggresive.
-                Set the "correctedText" to a new text that represents the same idea, but is not offensive or passive aggressive.
-                It should not be the same text as the original.
-                If the text was not offensive to begin with, set "correctedText" to null and "offensive" to false.`,
+                  "offensiveProbability": number,
+                  "correctedText": string
+                }"
+                Where the "offensiveProbability" represents the probability that the text is offensive or passive aggressive, where 0 means not offensive and 100 means very offensive.
+                The "correctedText" is the rephrased user input that is no longer offensive or passive aggressive.`,
       },
       {
         role: 'user',
@@ -80,10 +84,10 @@ const getResponse = async (
     throw new JsonParseError(response.message.content);
   }
 
-  let result: z.infer<typeof LlmResponse>;
+  let result: z.infer<typeof llmResponse>;
 
   try {
-    result = LlmResponse.parse(content);
+    result = llmResponse.parse(content);
   } catch (err) {
     throw new LlmResponseError(err as z.ZodError, content);
   }
@@ -92,21 +96,30 @@ const getResponse = async (
     throw new NoTextChangeError();
   }
 
-  return result;
+  if (result.offensiveProbability >= 50) {
+    if (!result.correctedText) {
+      throw new LlmError(
+        'Detected an offensive response, but no corrected text was provided',
+      );
+    }
+    return {
+      offensive: true,
+      correctedText: result.correctedText,
+    };
+  }
+
+  return {
+    offensive: false,
+    correctedText: null,
+  };
 };
 
-export default async function validateText(
-  text: string,
-): Promise<z.infer<typeof LlmResponse>> {
-  for (let i = 0; i < 3; i++) {
+export default async function validateText(text: string): Promise<LlmResponse> {
+  for (let i = 0; i < 5; i++) {
     try {
       return await getResponse(text);
     } catch (error) {
-      if (
-        error instanceof LlmResponseError ||
-        error instanceof JsonParseError ||
-        error instanceof NoTextChangeError
-      ) {
+      if (error instanceof LlmError) {
         console.debug(
           `[BeNice]: Failed to parse LLM response: ${error.message}. Retrying...`,
         );
