@@ -3,6 +3,7 @@ import './App.css';
 import getLocalStorage from '../commons/local-storage/get-local-storage';
 import { Settings } from '../commons/local-storage/local-storage';
 import { ChromeLocalStorage } from '../commons/local-storage/chrome-local-storage';
+import validateOllamaAccess from './validate-ollama-access';
 
 const getTrashIconUrl = () => {
   // @ts-ignore
@@ -66,6 +67,7 @@ function App() {
   const [ollamaHost, setOllamaHost] = useState('');
   const [allowedWebsites, setAllowedWebsites] = useState<string[]>([]);
   const [currentWebsite, setCurrentWebsite] = useState<string | null>(null);
+  const [ollamaError, setOllamaError] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -73,6 +75,7 @@ function App() {
         console.log('Loaded settings:', settings);
         setOllamaHost(settings.ollamaHost);
         setAllowedWebsites(settings.allowedWebsites);
+        return checkOllama(settings.ollamaHost);
       }),
       getCurrentSebsite().then((website) => {
         setCurrentWebsite(website);
@@ -82,8 +85,24 @@ function App() {
     });
   }, []);
 
+  const checkOllama = async (host: string) => {
+    try {
+      await validateOllamaAccess(host);
+      setOllamaError(null);
+      return true;
+    } catch (err) {
+      console.error('[BeNice]: Failed to validate ollama access:', err);
+      setOllamaError((err as Error).message);
+      return false;
+    }
+  };
+
   const saveSettings = async (event: FormEvent) => {
     event.preventDefault();
+
+    if (!(await checkOllama(ollamaHost))) {
+      return false;
+    }
 
     const settings: Settings = {
       ollamaHost,
@@ -107,11 +126,15 @@ function App() {
           Ollama host:
           <input
             type="text"
-            onChange={(e) => setOllamaHost(e.target.value)}
+            onChange={(e) => {
+              setOllamaHost(e.target.value);
+              checkOllama(e.target.value);
+            }}
             value={ollamaHost}
             name="ollamaHost"
             style={{ marginLeft: '0.5em' }}
           />
+          {ollamaError && <div style={{ color: 'red' }}>{ollamaError}</div>}
         </label>
 
         <h2>Allowed websites</h2>
