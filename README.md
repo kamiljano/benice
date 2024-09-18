@@ -25,5 +25,4 @@ Start the local server with `npm run dev`.
 # TODO
 
 - automatically validate the text, when some was already present before you started typing
-- fix the icon position... right now it can be in a very random place
 - text validation should not be a boolean, but rather a probability percentage that this is offensive. Right now this is too sensitive.
